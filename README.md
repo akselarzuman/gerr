@@ -94,6 +94,34 @@ Wraps an error with additional information:
 - `userMsg`: A message intended for the end user.
 - `internalMsg`: A message intended for developers.
 
+### Checking Error Codes
+
+Use `HasCode` to check any built-in or custom error code:
+
+```go
+if gerr.HasCode(err, gerr.NotFoundError) {
+	// Handle a missing resource.
+}
+
+if gerr.HasCode(err, gerr.ValidationError) {
+	// Handle invalid input.
+}
+
+const PaymentDeclined gerr.ErrorCode = 1001
+paymentErr := gerr.WrapWith(errors.New("declined"), int(PaymentDeclined), "Payment declined", "Provider declined payment")
+if gerr.HasCode(paymentErr, PaymentDeclined) {
+	// Handle a custom application error.
+}
+```
+
+`HasCode` returns false for nil or errors without a `WrappedError`. It uses
+`errors.As`, so it also works through standard wrappers such as
+`fmt.Errorf("service: %w", err)`. Only the first `WrappedError` found is checked;
+a different code deeper in the chain does not count as a match.
+
+Errors created by Gerr support `errors.Unwrap`, `errors.Is`, and `errors.As`
+to inspect their underlying errors.
+
 ### Accessing Error Details
 
 #### `Error() string`

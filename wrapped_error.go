@@ -29,15 +29,20 @@ func (e *err) Error() string {
 	return fmt.Sprintf("%v", e.error)
 }
 
+// Unwrap returns the underlying error for errors.Is and errors.As.
+func (e *err) Unwrap() error {
+	return e.error
+}
+
 func (e *err) FullError() string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Error: %v\n", e.Error()))
-	sb.WriteString(fmt.Sprintf("Error Type: %v\n", e.ErrorCode()))
-	sb.WriteString(fmt.Sprintf("User Message: %s\n", e.UserMessage()))
-	sb.WriteString(fmt.Sprintf("Internal Message: %s\n", e.InternalMessage()))
+	fmt.Fprintf(&sb, "Error: %v\n", e.Error())
+	fmt.Fprintf(&sb, "Error Type: %v\n", e.ErrorCode())
+	fmt.Fprintf(&sb, "User Message: %s\n", e.UserMessage())
+	fmt.Fprintf(&sb, "Internal Message: %s\n", e.InternalMessage())
 	sb.WriteString("Stack Trace:\n")
 	for _, frame := range e.StackTrace() {
-		sb.WriteString(fmt.Sprintf("\t%s\n", frame))
+		fmt.Fprintf(&sb, "\t%s\n", frame)
 	}
 	return sb.String()
 }
